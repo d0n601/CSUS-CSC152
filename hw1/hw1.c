@@ -9,7 +9,7 @@
  *
  * @brief CSC 152 HW1 P1.
  * 
- * Compile: s -std=c99 -W -Wall -Wpedantic -c 
+ * Compile: gcc hw1.c -std=c99 -W -Wall -Wpedantic -c 
  *
  * This program was written for homework 1. Using a Feistel 
  * construction, we create a simple invertable function, 
@@ -67,19 +67,26 @@ unsigned inverse_perm(unsigned y) {
 
 int main(void) {
 
-	unsigned i = 1776; // Initially set our unsigned integer
+	unsigned i;
+	unsigned y;
+	unsigned x;
+
+	for(unsigned c = 0; c < 21100; c++) {
+
+		i = c;
+		y = perm(i);
+		x = inverse_perm(y);
 	
-	unsigned y = perm(i); // Permutation call
-	unsigned x = inverse_perm(y); // We should get i back.
+		if(x != i ) {
+			printf("WARNING: Broken stuff...\n");
+			break;
+		}
 
-	if(x != i ) {
-		printf("WARNING: Broken stuff...\n");
+
+		printf("Permutation %i: %i \n", i, y);	
+		printf("UnPermutation %i: %i \n", y, x);
+
 	}
-
-
-	printf("Permutation %i: %i \n", i, y);	
-	printf("UnPermutation %i: %i \n", y, x);
-
 	return EXIT_SUCCESS;
 
 }
