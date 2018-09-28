@@ -1,9 +1,8 @@
-
 /**
  * @file hw1.c
  * @author  Ryan Kozak <ryankozak@csus.edu>
  * @author #6016
- * @date 14 Sep 2018
+ * @date 27 Sep 2018
  *
  * @section DESCRIPTION
  *
@@ -21,7 +20,6 @@
 #include<stdlib.h>
 
 
-
 /**
  * Uses a Feistel construction to invert an unsigned int.
  * For lack of a better term, this is the "encryption" function.
@@ -31,16 +29,18 @@
  */
 unsigned perm(unsigned x) {
 
-	// Split 32bits into lower and upper halves.
-	unsigned lo = x & 0xffff; // Low 16 bits.
-	unsigned hi = x >> 16; // High 16 bits.
+        unsigned hi = x >> 16; // High 16 bits.
+	unsigned lo = x & 0xFFFF; // Low  16 bits.
 
-	lo = lo ^ (hi*hi); // XOR low bits with high bits squared.
-	hi = hi ^ (lo*lo); // XOR high bits with low bits squared.
-	x = (hi << 16) | lo; // Rotate bits left.
+        hi = hi ^ (lo * lo);
+        lo = lo ^ (hi * hi);
+ 
+        x = ( hi << 16) | (lo & 0xFFFF); // Fixed on resubmission
+ 
+        return x;
 
-	return x; // Return resultant integer. 
 }
+
 
 
 /**
@@ -52,41 +52,15 @@ unsigned perm(unsigned x) {
  */
 unsigned inverse_perm(unsigned y) {
 
-	// Split 32bits into lower and upper halves.
-	unsigned lo = y & 0xfff; // Low 16 bits.
-	unsigned hi = y >> 16; // High 16 bits.
+        unsigned hi = y >> 16; // High 16 bits.
+        unsigned lo = y & 0xFFFF; // Low 16 bits.
+ 
+        lo = lo ^ (hi * hi); // Inverted order from perm()
+        hi = hi ^ (lo * lo); // ""   
 
-	y = (hi >> 16) | lo; // Rotate bits right.
-	hi = hi ^ (lo*lo); // XOR high bits with low bits squared.
-	lo = lo ^ (hi*hi); // XOR low bits with high bits squared.
+        y = (hi << 16) | (lo & 0xFFFF); // Fixed on resubmission
 
-	return y; // Return original integer.
-
-}
-
-
-int main(void) {
-
-	unsigned i;
-	unsigned y;
-	unsigned x;
-
-	for(unsigned c = 0; c < 21100; c++) {
-
-		i = c;
-		y = perm(i);
-		x = inverse_perm(y);
-	
-		if(x != i ) {
-			printf("WARNING: Broken stuff...\n");
-			break;
-		}
-
-
-		printf("Permutation %i: %i \n", i, y);	
-		printf("UnPermutation %i: %i \n", y, x);
-
-	}
-	return EXIT_SUCCESS;
+        return y; // Return original integer.
 
 }
+
