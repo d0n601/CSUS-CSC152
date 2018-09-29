@@ -16,6 +16,8 @@
  *
  */
 
+#include<stdio.h>
+
 void P52(unsigned s[12]) {
 
     for(int i = 0; i < 24; i++) {
@@ -57,24 +59,5 @@ void P52(unsigned s[12]) {
         }
 
     }
-
-    for(int c = 0; c < 12; c++) {
-        printf("%08x\n", s[c]);
-    }
-
-}
-
-
-
-/**
- * Caller function to test mult
- */
-int main(void) {
-
-    unsigned a[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
-
-    P52(a);
-
-    return 0;
 
 }
