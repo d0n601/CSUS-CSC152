@@ -1,69 +1,45 @@
 /**
- * @file hw2_P52.c
+ * @file hw2_mult.c
  * @author  Ryan Kozak <ryankozak@csus.edu>
  * @author #6016
- * @date 28 Sep 2018
+ * @date 30 Sep 2018
  *
  * @section DESCRIPTION
  *
- * @brief CSC 152 HW2 P2.
+ * @brief CSC 152 HW2 P1.
  *
- * Compile: gcc hw2_P52.c -std=c99 -W -Wall -Wpedantic -c
+ * Compile: gcc hw2_mult.c -std=c99 -W -Wall -pedantic -c
  *
  * This program was written for homework 2. It implements
- * the psudocode given in class for the 48-byte permutation
- * known as P52.
+ * the psudocode given in class for for GF multiplication.
  *
  */
 
-void P52(unsigned s[12]) {
+#include <stdio.h>
 
-    for(int i = 0; i < 24; i++) {
 
-        for(int j = 0; j < 4; j++) {
-            unsigned x = (s[j] << 24) | (s[j] >> (32 - 24));
-            unsigned y = (s[4+j] << 9) | (s[4+j] >> (32 - 9));
-            unsigned z = s[8+j]; // Just set z.
+unsigned mult(unsigned a, unsigned b, unsigned modulus, unsigned degree) {
 
-            s[8+j] = x ^ (z << 1) ^ ((y & z) << 2);
-            s[4+j] = y ^ x ^ ((x | z) << 1);
-            s[j] = z ^ y ^ ((x & y) << 3);
+    unsigned extra = 0; // Result of multiplication
+
+    while( a > 0 ) {
+
+        if( a % 2 ) { // p1 has x^0 term
+            a = a ^ 1;  // p1 = p1 - x^0
+            extra = extra ^ b; // extra = extra + p2
         }
 
-        // Mix columns.
-        if ( (i % 4) == 0) {
-            /* 2D representation (s[0,0], s[0,1], s[0,2], s[0,3]) = (s[0,1], s[0,0], s[0,3], s[0,2]) */
-            unsigned temp = s[0];
-            s[0] = s[1];
-            s[1] = temp;
-            temp = s[2];
-            s[2] = s[3];
-            s[3] = temp;
+        a = a >> 1; // p1 = p1 * x^-1
+        b = b << 1; // p2 = p2 * x
 
-            /* s[0,0] = s[0,0] xor 0x9e377900 xor (24-i) */
-            s[0] = s[0] ^ 0x9e377900 ^ (24 - i);
-
-        }
-
-        // Mix columns differently.
-        else if ( (i % 4) == 2) {
-            /* 2D representation (s[0,0], s[0,1], s[0,2], s[0,3]) = (s[0,2], s[0,3], s[0,0], s[0,1]) */
-            unsigned temp0 = s[0];
-            unsigned temp1 = s[1];
-            s[0] = s[2];
-            s[1] = s[3];
-            s[2] = temp0;
-            s[3] = temp1;
+        if(b & (1 << degree)) { // p2 has x^n term
+            b = (b ^ (1 << degree)) ^ (modulus ^ (1 << degree)); // p2 = p2 - x^n + (modulus' lower terms)
         }
 
     }
 
-    for(int c = 0; c < 12; c++) {
-        printf("%08x\n", s[c]);
-    }
-
+    return extra; // result of multiplication
 }
-
 
 
 /**
@@ -71,10 +47,18 @@ void P52(unsigned s[12]) {
  */
 int main(void) {
 
-    unsigned a[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
+    unsigned a, b, modulus, degree, x;
 
-    P52(a);
+    a = 4;
+    b = 5;
+    degree = 4;
+    modulus = 18;
+
+    x = mult(a, b, modulus, degree);
+
+    printf("%x\n", x);
 
     return 0;
 
 }
+

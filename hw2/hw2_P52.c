@@ -8,7 +8,7 @@
  *
  * @brief CSC 152 HW2 P2.
  *
- * Compile: gcc hw2_P52.c -std=c99 -W -Wall -Wpedantic -c
+ * Compile: gcc hw2_P52.c -std=c99 -W -Wall -pedantic -c
  *
  * This program was written for homework 2. It implements
  * the psudocode given in class for the 48-byte permutation
@@ -23,12 +23,12 @@ void P52(unsigned s[12]) {
     for(int i = 0; i < 24; i++) {
 
         for(int j = 0; j < 4; j++) {
-            unsigned x = (s[j] << 24) | (s[j] >> (32 - 24));
-            unsigned y = (s[4+j] << 9) | (s[4+j] >> (32 - 9));
+            unsigned x = (s[j] << 24) | (s[j] >> (32 - 24)); // Rotate left 24 bits.
+            unsigned y = (s[4+j] << 9) | (s[4+j] >> (32 - 9)); // Rotate left 9 bits.
             unsigned z = s[8+j]; // Just set z.
 
             s[8+j] = x ^ (z << 1) ^ ((y & z) << 2);
-            s[4+j] = y ^ x ^ ((x | z) << 1);
+            s[4+j] = y ^ x ^ ((x | z) << 1); 
             s[j] = z ^ y ^ ((x & y) << 3);
         }
 
