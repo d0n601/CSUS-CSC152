@@ -40,25 +40,3 @@ unsigned mult(unsigned a, unsigned b, unsigned modulus, unsigned degree) {
 
     return extra; // result of multiplication
 }
-
-
-/**
- * Caller function to test mult
- */
-int main(void) {
-
-    unsigned a, b, modulus, degree, x;
-
-    a = 4;
-    b = 5;
-    degree = 4;
-    modulus = 18;
-
-    x = mult(a, b, modulus, degree);
-
-    printf("%x\n", x);
-
-    return 0;
-
-}
-
