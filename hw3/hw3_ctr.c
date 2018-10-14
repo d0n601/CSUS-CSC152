@@ -53,21 +53,19 @@ int main(int argc, const char* argv[]) {
     }
 
     do {
+
         bytes_read = fread(blk, 1, BLK_LEN, stdin);
+
         if (bytes_read > 0) {
             
-           // (P52((Nonce + CTR) ^ key) ^ key) ^ blk;
-     	    
+           // (P52((Nonce + CTR) ^ key) ^ key) ^ blk;     	    
             memcpy(&xblk[0], &nonce[0], NONCE_LEN);
             memcpy(&xblk[12], &ctr[0], CTR_LEN);
 
             for(int c = 0; c < BLK_LEN; c++) {
                 xblk[c] = xblk[c] ^ key[c];    // XOR (nonce+ctr) with key.
-                printf("%x", xblk[c]);
             }
             
-            break;
-           
             P52((unsigned *)xblk);
             
             for(int c = 0; c < BLK_LEN; c++) {
@@ -78,15 +76,25 @@ int main(int argc, const char* argv[]) {
                 blk[c] = xblk[c] ^ blk[c];
             }               
            
-            fwrite(blk, 1, bytes_read, stdout); // Write block to file
-            //memcpy(ctr, (unsigned)ctr+0x000000000001, CTR_LEN);
-            for(int c = BLK_LEN-1; c >= 0 ; c--) {
-                if((int)ctr[c] < 255){
-                    ctr[c] = (int)ctr[c]++;
+            //for(int c = 0; c < CTR_LEN; c++) {
+            //    printf("%i", (int)ctr[c]);
+            //}
+
+            printf("\n");
+            
+            for(int c = CTR_LEN-1; c >= 0; c--) {
+                if((int)ctr[c] < 255) {
+                    ctr[c] = (unsigned char) ((int)ctr[c] + 1);
                     break;
                 }
-            }
+            }            
+
+            fwrite(blk, 1, bytes_read, stdout); // Write block to file
+            
         }
+
     } while (bytes_read == BLK_LEN);
+
     return EXIT_SUCCESS;
+
 } 
