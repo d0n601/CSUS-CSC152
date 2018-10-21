@@ -2,7 +2,7 @@
  * @file hw3_ctr.c
  * @author Ryan Kozak
  * @author #6016
- * @date 13 October 2018
+ * @date 21 October 2018
  * @brief Encrypts or decrypts stdin to stdout
  *
  * Compile on Athena: gcc -std=c99 hw3_ctr.c ../hw2/hw2_P52.c
@@ -23,16 +23,12 @@
 
 void P52(unsigned s[12]);
 
-unsigned int bI(unsigned int x) {
-	return (((x>>24) & 0x000000ff) | ((x>>8) & 0x0000ff00) | ((x<<8) & 0x00ff0000) | ((x<<24) & 0xff000000));
-}
-
 int main(int argc, const char* argv[]) {
     size_t bytes_read;
+    unsigned ctr = 0;
     unsigned char key[KEY_LEN] = {0};  /* Auto init to all zeros */
     unsigned char nonce[NONCE_LEN];
     unsigned char blk[BLK_LEN];
-    unsigned char ctr[CTR_LEN] = {0}; /* I put this here, not included in template */    
     unsigned char xblk[BLK_LEN] = {0}; /* I put this here, not included in template */
 
     /* Setup key and nonce. Report command line errors */
@@ -58,9 +54,13 @@ int main(int argc, const char* argv[]) {
 
         if (bytes_read > 0) {
             
-           // (P52((Nonce + CTR) ^ key) ^ key) ^ blk;     	    
             memcpy(&xblk[0], &nonce[0], NONCE_LEN);
-            memcpy(&xblk[12], &ctr[0], CTR_LEN);
+	    memset(xblk + NONCE_LEN, 0, CTR_LEN); 
+
+            xblk[BLK_LEN-1] = (unsigned char)(ctr >> 0);
+	    xblk[BLK_LEN-2] = (unsigned char)(ctr >> 8);
+	    xblk[BLK_LEN-3] = (unsigned char)(ctr >> 16);
+            xblk[BLK_LEN-4] = (unsigned char)(ctr >> 24);
 
             for(int c = 0; c < BLK_LEN; c++) {
                 xblk[c] = xblk[c] ^ key[c];    // XOR (nonce+ctr) with key.
@@ -74,27 +74,15 @@ int main(int argc, const char* argv[]) {
            
             for(int c = 0; c < BLK_LEN; c++) {
                 blk[c] = xblk[c] ^ blk[c];
-            }               
-           
-            //for(int c = 0; c < CTR_LEN; c++) {
-            //    printf("%i", (int)ctr[c]);
-            //}
+            }
 
-            printf("\n");
-            
-            for(int c = CTR_LEN-1; c >= 0; c--) {
-                if((int)ctr[c] < 255) {
-                    ctr[c] = (unsigned char) ((int)ctr[c] + 1);
-                    break;
-                }
-            }            
-
+            ctr++;
+   
             fwrite(blk, 1, bytes_read, stdout); // Write block to file
-            
+        
         }
 
     } while (bytes_read == BLK_LEN);
 
     return EXIT_SUCCESS;
-
 } 
